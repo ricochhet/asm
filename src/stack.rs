@@ -41,6 +41,10 @@ impl Stack {
         self.values.len()
     }
 
+    pub fn is_empty(&mut self) -> bool {
+        self.values.is_empty()
+    }
+
     pub fn print(&mut self) {
         for value in &self.values {
             let hash_str = if value.hashed {
