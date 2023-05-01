@@ -13,6 +13,8 @@ pub enum Instruction {
     Div,
     Mov(isize, Pointer),
     Ld(isize),
+    DmpHash(isize),
+    DmpReg(isize),
     Cmp(Pointer),
     Incl(Pointer),
     Jump(Pointer),

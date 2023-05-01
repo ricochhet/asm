@@ -1,6 +1,10 @@
-PushInt 777
-PushInt 101
+PushStr hello
 Mov 0 0
-Mov 1 1
+Pop
+
+Ld 0
+Pop
+
+DmpReg 0
 PrintRegisters
 PrintStack

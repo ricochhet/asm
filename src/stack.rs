@@ -34,7 +34,7 @@ pub struct StackValue {
 pub struct Stack {
     pub values: Vec<StackValue>,
     pub hashmap: HashMap<isize, String>,
-    pub registers: HashMap<isize, isize>,
+    pub registers: HashMap<isize, StackValue>,
 }
 
 impl Stack {
@@ -64,7 +64,7 @@ impl Stack {
         }
     }
 
-    pub fn push(&mut self, v: isize) {
+    pub fn push_as_value(&mut self, v: isize) {
         self.values.push(StackValue { value: v, hashed: false });
     }
 
@@ -72,14 +72,22 @@ impl Stack {
         self.values.push(StackValue { value: v, hashed: true });
     }
 
-    pub fn push_hashed(&mut self, v: &str) {
+    pub fn push_hashed_value(&mut self, v: &str) {
         let h = hash(v.to_string());
         self.values.push(StackValue { value: h, hashed: true });
         self.hashmap.insert(h, v.to_string());
     }
 
-    pub fn push_register(&mut self, r: isize, v: isize) {
+    pub fn delete_hash_value(&mut self, v: isize) {
+        self.hashmap.remove(&v);
+    }
+
+    pub fn push_register(&mut self, r: isize, v: StackValue) {
         self.registers.insert(r, v);
+    }
+
+    pub fn delete_register(&mut self, v: isize) {
+        self.registers.remove(&v);
     }
 
     pub fn pop(&mut self) -> StackValue {

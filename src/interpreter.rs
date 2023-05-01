@@ -30,9 +30,9 @@ fn run<'a>(program: Program<'a>) {
         match instruction {
             Noop => {}
             PushInt(d) => {
-                stack.push(*d);
+                stack.push_as_value(*d);
             }
-            PushStr(d) => stack.push_hashed(d),
+            PushStr(d) => stack.push_hashed_value(d),
             Pop => {
                 stack.pop();
             }
@@ -40,28 +40,28 @@ fn run<'a>(program: Program<'a>) {
                 let (a, b) = (stack.pop(), stack.pop());
 
                 if !a.hashed && !b.hashed {
-                    stack.push(a.value + b.value)
+                    stack.push_as_value(a.value + b.value)
                 }
             }
             Sub => {
                 let (a, b) = (stack.pop(), stack.pop());
 
                 if !a.hashed && !b.hashed {
-                    stack.push(b.value - a.value)
+                    stack.push_as_value(b.value - a.value)
                 }
             }
             Mul => {
                 let (a, b) = (stack.pop(), stack.pop());
 
                 if !a.hashed && !b.hashed {
-                    stack.push(a.value * b.value)
+                    stack.push_as_value(a.value * b.value)
                 }
             }
             Div => {
                 let (a, b) = (stack.pop(), stack.pop());
 
                 if !a.hashed && !b.hashed {
-                    stack.push(b.value / a.value)
+                    stack.push_as_value(b.value / a.value)
                 }
             }
             Cmp(p) => {
@@ -74,7 +74,7 @@ fn run<'a>(program: Program<'a>) {
                     }
                 } else if !a.hashed && !b.hashed {
                     if b.value == a.value {
-                        stack.push(b.value);
+                        stack.push_as_value(b.value);
                         pointer = *p;
                     }
                 }
@@ -83,12 +83,22 @@ fn run<'a>(program: Program<'a>) {
             Decr => stack.peek_mut().value -= 1,
             Mov(d, p) => {
                 let a = *stack.get(*p + call_stack.last().map_or(0, |s| s.stack_offset));
-                stack.push_register(*d, a.value);
+                stack.push_register(*d, a);
             },
             Ld(d) => {
                 if let Some(register) = stack.registers.get(d) {
-                    stack.push(*register);
+                    if register.hashed {
+                        stack.push_as_hashed(register.value);
+                    } else if !register.hashed {
+                        stack.push_as_value(register.value);
+                    }
                 }
+            }
+            DmpHash(p) => {
+                stack.delete_hash_value(*p);
+            }
+            DmpReg(p) => {
+                stack.delete_register(*p);
             }
             Jump(p) => pointer = *p,
             Incl(p) => {
@@ -105,7 +115,7 @@ fn run<'a>(program: Program<'a>) {
                     let (str1, str2) = (&a.value.to_string(), &b.value.to_string());
 
                     if str2.contains(str1) {
-                        stack.push(b.value);
+                        stack.push_as_value(b.value);
                         pointer = *p;
                     }
                 }
@@ -151,7 +161,7 @@ fn run<'a>(program: Program<'a>) {
                 if a.hashed {
                     stack.push_as_hashed(a.value);
                 } else if !a.hashed {
-                    stack.push(a.value);
+                    stack.push_as_value(a.value);
                 }
             }
             Set(i) => {
@@ -164,7 +174,7 @@ fn run<'a>(program: Program<'a>) {
                 if a.hashed {
                     stack.push_as_hashed(a.value);
                 } else if !a.hashed {
-                    stack.push(a.value);
+                    stack.push_as_value(a.value);
                 }
             }
             SetArg(i) => {
@@ -205,6 +215,9 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["Incr"] => Incr,
         ["Decr"] => Decr,
         ["Mov", d, p] => Mov(d.parse::<isize>().unwrap(), p.parse::<usize>().unwrap()),
+        ["Ld", d] => Ld(d.parse::<isize>().unwrap()),
+        ["DmpHash", p] => DmpHash(p.parse::<isize>().unwrap()),
+        ["DmpReg", p] => DmpReg(p.parse::<isize>().unwrap()),
         ["Jump", l] => Jump(*labels.get(l).unwrap()),
         ["Cmp", l] => Cmp(*labels.get(l).unwrap()),
         ["Incl", l] => Incl(*labels.get(l).unwrap()),
