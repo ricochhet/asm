@@ -11,6 +11,8 @@ pub enum Instruction {
     Decr,
     Mul,
     Div,
+    Mov(isize, Pointer),
+    Ld(isize),
     Cmp(Pointer),
     Incl(Pointer),
     Jump(Pointer),
@@ -28,6 +30,7 @@ pub enum Instruction {
     Print,
     PrintC,
     PrintStack,
+    PrintRegisters,
     Call(Pointer),
     Ret,
 }

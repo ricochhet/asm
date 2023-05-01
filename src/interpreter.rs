@@ -19,7 +19,8 @@ fn run<'a>(program: Program<'a>) {
     use Instruction::*;
 
     let mut stack: Stack = Stack { values: Vec::new(),
-                                   hashmap: HashMap::new() };
+                                   hashmap: HashMap::new(),
+                                   registers: HashMap::new() };
     let mut pointer: Pointer = 0;
     let mut call_stack = CallStack::new();
 
@@ -80,6 +81,15 @@ fn run<'a>(program: Program<'a>) {
             }
             Incr => stack.peek_mut().value += 1,
             Decr => stack.peek_mut().value -= 1,
+            Mov(d, p) => {
+                let a = *stack.get(*p + call_stack.last().map_or(0, |s| s.stack_offset));
+                stack.push_register(*d, a.value);
+            },
+            Ld(d) => {
+                if let Some(register) = stack.registers.get(d) {
+                    stack.push(*register);
+                }
+            }
             Jump(p) => pointer = *p,
             Incl(p) => {
                 let (a, b) = (stack.pop(), stack.pop());
@@ -168,6 +178,9 @@ fn run<'a>(program: Program<'a>) {
             PrintStack => {
                 stack.print();
             }
+            PrintRegisters => {
+                stack.print_registers();
+            }
             Call(p) => {
                 call_stack.push(StackFrame { stack_offset: stack.len(),
                                              ip: pointer });
@@ -191,6 +204,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["Div"] => Div,
         ["Incr"] => Incr,
         ["Decr"] => Decr,
+        ["Mov", d, p] => Mov(d.parse::<isize>().unwrap(), p.parse::<usize>().unwrap()),
         ["Jump", l] => Jump(*labels.get(l).unwrap()),
         ["Cmp", l] => Cmp(*labels.get(l).unwrap()),
         ["Incl", l] => Incl(*labels.get(l).unwrap()),
@@ -207,6 +221,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["Print"] => Print,
         ["PrintC"] => PrintC,
         ["PrintStack"] => PrintStack,
+        ["PrintRegisters"] => PrintRegisters,
         ["Proc", proc] => Jump(procedures.get(proc).unwrap().1),
         ["Call", proc] => Call(procedures.get(proc).unwrap().0 + 1),
         ["Ret"] => Ret,
