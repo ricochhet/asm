@@ -2,17 +2,6 @@ use crate::instructions::Instruction;
 use crate::stack::*;
 use std::collections::HashMap;
 
-pub fn hash(s: String) -> isize {
-    let mut hash = 2166136261;
-
-    for b in s.bytes() {
-        hash ^= b as u32;
-        hash = hash.wrapping_mul(16777619);
-    }
-
-    hash as isize
-}
-
 pub fn compile(buffer: String) {
     let line_splits = buffer.split('\n')
                             .map(|s| s.split_whitespace().collect::<Vec<_>>())
@@ -29,10 +18,9 @@ pub fn compile(buffer: String) {
 fn run<'a>(program: Program<'a>) {
     use Instruction::*;
 
-    let mut stack: Stack = Stack(Vec::new());
+    let mut stack: Stack = Stack { values: Vec::new(), hashmap: HashMap::new() };
     let mut pointer: Pointer = 0;
     let mut call_stack = CallStack::new();
-    let mut table: HashMap<isize, TableValue> = HashMap::new();
 
     while let Some(instruction) = program.get(pointer) {
         pointer += 1;
@@ -40,105 +28,146 @@ fn run<'a>(program: Program<'a>) {
         match instruction {
             Noop => {}
             PushInt(d) => {
-                let h = hash(d.to_string());
-                table.insert(h, TableValue::Integer(*d));
-                stack.push(*d)
+                stack.push(*d);
             }
             PushStr(d) => {
-                let h = hash(d.to_string());
-                table.insert(h, TableValue::String(d.clone()));
-                stack.push(h);
+                stack.push_hashed(d)
             }
             Pop => {
                 stack.pop();
             }
             Add => {
                 let (a, b) = (stack.pop(), stack.pop());
-                stack.push(a + b)
+
+                if !a.hashed && !b.hashed {
+                    stack.push(a.value + b.value)
+                }
             }
             Sub => {
                 let (a, b) = (stack.pop(), stack.pop());
-                stack.push(b - a)
+
+                if !a.hashed && !b.hashed {
+                    stack.push(b.value - a.value)
+                }
             }
             Mul => {
                 let (a, b) = (stack.pop(), stack.pop());
-                stack.push(a * b)
+
+                if !a.hashed && !b.hashed {
+                    stack.push(a.value * b.value)
+                }
             }
             Div => {
                 let (a, b) = (stack.pop(), stack.pop());
-                stack.push(b / a)
+
+                if !a.hashed && !b.hashed {
+                    stack.push(b.value / a.value)
+                }
             }
             Cmp(p) => {
                 let (a, b) = (stack.pop(), stack.pop());
 
-                if b == a {
-                    stack.push(b);
-                    pointer = *p;
-                }
-            }
-            Incr => *stack.peek_mut() += 1,
-            Decr => *stack.peek_mut() -= 1,
-            Jump(p) => pointer = *p,
-            Strhas(p) => {
-                let (a, b) = (stack.pop(), stack.pop());
-                let (value1, value2) = (table.get(&a), table.get(&b));
-
-                if let (Some(TableValue::String(str1)), Some(TableValue::String(str2))) = (value1, value2) {
-                    if str2.contains(str1) {
-                        stack.push(b);
+                if a.hashed && b.hashed {
+                    if b.value == a.value {
+                        stack.push_as_hashed(b.value);
+                        pointer = *p;
+                    }
+                } else if !a.hashed && !b.hashed {
+                    if b.value == a.value {
+                        stack.push(b.value);
                         pointer = *p;
                     }
                 }
             }
+            Incr => {
+                stack.peek_mut().value += 1
+            },
+            Decr => {
+                stack.peek_mut().value -= 1
+            },
+            Jump(p) => pointer = *p,
+            Strhas(p) => {
+                let (a, b) = (stack.pop(), stack.pop());
+
+                if a.hashed && b.hashed {
+                    if let (Some(str1), Some(str2)) = (stack.hashmap.get(&a.value), stack.hashmap.get(&b.value)) {
+                        if str2.contains(str1) {
+                            stack.push_as_hashed(b.value);
+                            pointer = *p;
+                        }
+                    }
+                }
+            }
             JE(p) => {
-                if stack.peek() == 0 {
+                if stack.peek().value == 0 {
                     stack.pop();
                     pointer = *p;
                 }
             }
             JNE(p) => {
-                if stack.peek() != 0 {
+                if stack.peek().value != 0 {
                     stack.pop();
                     pointer = *p;
                 }
             }
             JGT(p) => {
-                if stack.peek() > 0 {
+                if stack.peek().value > 0 {
                     stack.pop();
                     pointer = *p;
                 }
             }
             JLT(p) => {
-                if stack.peek() < 0 {
+                if stack.peek().value < 0 {
                     stack.pop();
                     pointer = *p;
                 }
             }
             JGE(p) => {
-                if stack.peek() >= 0 {
+                if stack.peek().value >= 0 {
                     stack.pop();
                     pointer = *p;
                 }
             }
             JLE(p) => {
-                if stack.peek() <= 0 {
+                if stack.peek().value <= 0 {
                     stack.pop();
                     pointer = *p;
                 }
             }
-            Get(i) => stack.push(*stack.get(*i + call_stack.last().map_or(0, |s| s.stack_offset))),
-            Set(i) => *stack.0.get_mut(*i + call_stack.last().map_or(0, |s| s.stack_offset)).unwrap() = stack.peek(),
-            GetArg(i) => stack.push(*stack.0.get(call_stack.last().unwrap().stack_offset - 1 - *i).unwrap()),
+            Get(i) => {
+                let a = *stack.get(*i + call_stack.last().map_or(0, |s| s.stack_offset));
+                if a.hashed {
+                    stack.push_as_hashed(a.value);
+                } else if !a.hashed {
+                    stack.push(a.value);
+                }
+            },
+            Set(i) => {
+                let a = *i + call_stack.last().map_or(0, |s| s.stack_offset);
+                *stack.get_mut(a) = stack.peek();
+            },
+            GetArg(i) => {
+                let a = *stack.get(call_stack.last().unwrap().stack_offset - 1 - *i);
+
+                if a.hashed {
+                    stack.push_as_hashed(a.value);
+                } else if !a.hashed {
+                    stack.push(a.value);
+                }
+            },
             SetArg(i) => {
                 let offset_i = call_stack.last().unwrap().stack_offset - 1 - *i;
                 let new_val = stack.peek();
+                
                 *stack.get_mut(offset_i) = new_val;
             }
-            Print => print!("{}", stack.peek()),
-            PrintC => print!("{}", stack.peek() as u8 as char),
-            PrintStack => println!("{:?}", stack.0),
+            Print => print!("{}", stack.peek().value),
+            PrintC => print!("{}", stack.peek().value as u8 as char),
+            PrintStack => {
+                stack.print();
+            },
             Call(p) => {
-                call_stack.push(StackFrame { stack_offset: stack.0.len(),
+                call_stack.push(StackFrame { stack_offset: stack.len(),
                                              ip: pointer });
                 pointer = *p;
             }
