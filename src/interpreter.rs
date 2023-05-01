@@ -1,8 +1,9 @@
+use crate::externs::call_extern;
 use crate::instructions::Instruction;
 use crate::stack::*;
 use std::collections::HashMap;
 
-fn hash(s: String) -> isize {
+pub fn hash(s: String) -> isize {
     let mut hash = 2166136261;
 
     for b in s.bytes() {
@@ -142,8 +143,8 @@ fn run<'a>(program: Program<'a>) {
                                              ip: pointer });
                 pointer = *p;
             }
-            Extern(_d) => {
-                // call_extern(d)
+            Extern(d) => {
+                call_extern(&d, &mut stack, &mut table);
             }
             Ret => pointer = call_stack.pop().unwrap().ip,
         }
@@ -182,6 +183,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["Proc", proc] => Jump(procedures.get(proc).unwrap().1),
         ["Call", proc] => Call(procedures.get(proc).unwrap().0 + 1),
         ["Ret"] => Ret,
+        ["Extern", x] => Extern(x.parse::<String>().unwrap()),
         ["label", ..] | ["End"] => Noop,
         l => panic!("Invalid instruction: {:?}", l),
     }
