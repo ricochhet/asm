@@ -29,6 +29,5 @@ pub enum Instruction {
     PrintC,
     PrintStack,
     Call(Pointer),
-    Extern(String),
     Ret,
 }
