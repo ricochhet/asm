@@ -1,0 +1,5 @@
+unstable_features = true
+max_width = 180
+tab_spaces = 4
+indent_style = "Visual"
+brace_style = "PreferSameLine"
