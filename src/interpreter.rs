@@ -18,7 +18,8 @@ pub fn compile(buffer: String) {
 fn run<'a>(program: Program<'a>) {
     use Instruction::*;
 
-    let mut stack: Stack = Stack { values: Vec::new(), hashmap: HashMap::new() };
+    let mut stack: Stack = Stack { values: Vec::new(),
+                                   hashmap: HashMap::new() };
     let mut pointer: Pointer = 0;
     let mut call_stack = CallStack::new();
 
@@ -30,9 +31,7 @@ fn run<'a>(program: Program<'a>) {
             PushInt(d) => {
                 stack.push(*d);
             }
-            PushStr(d) => {
-                stack.push_hashed(d)
-            }
+            PushStr(d) => stack.push_hashed(d),
             Pop => {
                 stack.pop();
             }
@@ -79,12 +78,8 @@ fn run<'a>(program: Program<'a>) {
                     }
                 }
             }
-            Incr => {
-                stack.peek_mut().value += 1
-            },
-            Decr => {
-                stack.peek_mut().value -= 1
-            },
+            Incr => stack.peek_mut().value += 1,
+            Decr => stack.peek_mut().value -= 1,
             Jump(p) => pointer = *p,
             Incl(p) => {
                 let (a, b) = (stack.pop(), stack.pop());
@@ -148,11 +143,11 @@ fn run<'a>(program: Program<'a>) {
                 } else if !a.hashed {
                     stack.push(a.value);
                 }
-            },
+            }
             Set(i) => {
                 let a = *i + call_stack.last().map_or(0, |s| s.stack_offset);
                 *stack.get_mut(a) = stack.peek();
-            },
+            }
             GetArg(i) => {
                 let a = *stack.get(call_stack.last().unwrap().stack_offset - 1 - *i);
 
@@ -161,7 +156,7 @@ fn run<'a>(program: Program<'a>) {
                 } else if !a.hashed {
                     stack.push(a.value);
                 }
-            },
+            }
             SetArg(i) => {
                 let offset_i = call_stack.last().unwrap().stack_offset - 1 - *i;
                 let new_val = stack.peek();
@@ -172,7 +167,7 @@ fn run<'a>(program: Program<'a>) {
             PrintC => print!("{}", stack.peek().value as u8 as char),
             PrintStack => {
                 stack.print();
-            },
+            }
             Call(p) => {
                 call_stack.push(StackFrame { stack_offset: stack.len(),
                                              ip: pointer });

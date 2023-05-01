@@ -1,4 +1,4 @@
-use crate::{instructions::Instruction};
+use crate::instructions::Instruction;
 use std::collections::{BTreeMap, HashMap};
 
 pub fn hash(s: String) -> isize {
@@ -33,7 +33,7 @@ pub struct StackValue {
 
 pub struct Stack {
     pub values: Vec<StackValue>,
-    pub hashmap: HashMap<isize, String>
+    pub hashmap: HashMap<isize, String>,
 }
 
 impl Stack {
