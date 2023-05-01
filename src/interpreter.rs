@@ -86,7 +86,7 @@ fn run<'a>(program: Program<'a>) {
                 stack.peek_mut().value -= 1
             },
             Jump(p) => pointer = *p,
-            Strhas(p) => {
+            Incl(p) => {
                 let (a, b) = (stack.pop(), stack.pop());
 
                 if a.hashed && b.hashed {
@@ -95,6 +95,13 @@ fn run<'a>(program: Program<'a>) {
                             stack.push_as_hashed(b.value);
                             pointer = *p;
                         }
+                    }
+                } else if !a.hashed && !b.hashed {
+                    let (str1, str2) = (&a.value.to_string(), &b.value.to_string());
+
+                    if str2.contains(str1) {
+                        stack.push(b.value);
+                        pointer = *p;
                     }
                 }
             }
@@ -158,7 +165,7 @@ fn run<'a>(program: Program<'a>) {
             SetArg(i) => {
                 let offset_i = call_stack.last().unwrap().stack_offset - 1 - *i;
                 let new_val = stack.peek();
-                
+
                 *stack.get_mut(offset_i) = new_val;
             }
             Print => print!("{}", stack.peek().value),
@@ -191,7 +198,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["Decr"] => Decr,
         ["Jump", l] => Jump(*labels.get(l).unwrap()),
         ["Cmp", l] => Cmp(*labels.get(l).unwrap()),
-        ["Strhas", l] => Strhas(*labels.get(l).unwrap()),
+        ["Incl", l] => Incl(*labels.get(l).unwrap()),
         ["JE", l] => JE(*labels.get(l).unwrap()),
         ["JNE", l] => JNE(*labels.get(l).unwrap()),
         ["JGE", l] => JGE(*labels.get(l).unwrap()),

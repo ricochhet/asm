@@ -12,7 +12,7 @@ pub enum Instruction {
     Mul,
     Div,
     Cmp(Pointer),
-    Strhas(Pointer),
+    Incl(Pointer),
     Jump(Pointer),
     JE(Pointer),
     JNE(Pointer),
