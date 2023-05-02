@@ -34,6 +34,7 @@ All instructions are currently case-sensitive (subject to change).
 - `Sub` `SubF` pops the top two items from the stack, subtracts them, and pushes the result.
 - `Mul` `MulF` pops the top two items from the stack, multiplies them, and pushes the result.
 - `Div` `DivF` pops the top two items from the stack, divides them, and pushes the result.
+- `Mod` `ModF` pops the top two items from the stack, returns the remainder of them, and pushes the result.
 - `Incr` increments the top item of the stack by one.
 - `Decr` decrements the top item of the stack by one.
 - `Mov x y` moves y index into x register. y is a position in the stack (-1 is the top of the stack).

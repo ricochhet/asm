@@ -103,6 +103,22 @@ fn run<'a>(program: Program<'a>) {
                     }
                 }
             }
+            Mod => {
+                let (a, b) = (stack.pop(), stack.pop());
+
+                if !a.hashed && !b.hashed {
+                    stack.push_as_value(b.value % a.value)
+                }
+            }
+            ModF => {
+                let (a, b) = (stack.pop(), stack.pop());
+
+                if a.hashed && b.hashed {
+                    if let (Some(ValueType::Float(a)), Some(ValueType::Float(b))) = (stack.hashmap.get(&a.value), stack.hashmap.get(&b.value)) {
+                        stack.push_hashed_float(b % a);
+                    }
+                }
+            }
             Cmp(p) => {
                 let (a, b) = (stack.pop(), stack.pop());
 
@@ -362,6 +378,8 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["MulF"] => MulF, // float
         ["Div"] => Div,   // int
         ["DivF"] => DivF, // float
+        ["Mod"] => Mod,   // int
+        ["ModF"] => ModF, // float
         ["Incr"] => Incr,
         ["Decr"] => Decr,
         ["Mov", d, p] => Mov(d.parse::<isize>().unwrap(), p.parse::<isize>().unwrap()),
