@@ -190,7 +190,7 @@ fn run<'a>(program: Program<'a>) {
             DlcReg => {
                 stack.shrink_registers()
             }
-            Jump(p) => pointer = *p,
+            Jmp(p) => pointer = *p,
             InclI(p) => {
                 let (a, b) = (stack.pop(), stack.pop());
 
@@ -410,7 +410,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["dmpreg", p] => DmpReg(p.parse::<isize>().unwrap()), // remove key
         ["clsreg"] => ClsReg,   // clear table
         ["dlcreg"] => DlcReg,   // shrink_to_fit / dealloc table
-        ["jump", l] => Jump(*labels.get(l).unwrap()),
+        ["jmp", l] => Jmp(*labels.get(l).unwrap()),
         ["cmp", l] => Cmp(*labels.get(l).unwrap()),
         ["incl", l] => InclI(*labels.get(l).unwrap()),
         ["je", l] => JE(*labels.get(l).unwrap()),     // int
@@ -433,7 +433,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["prntc"] => PrntC,
         ["prntstk"] => PrntStk,
         ["prntreg"] => PrntReg,
-        ["proc", proc] => Jump(procedures.get(proc).unwrap().1),
+        ["proc", proc] => Jmp(procedures.get(proc).unwrap().1),
         ["call", proc] => Call(procedures.get(proc).unwrap().0 + 1),
         ["ret"] => Ret,
         ["label", ..] | ["end"] => Noop,

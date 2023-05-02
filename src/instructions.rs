@@ -32,7 +32,7 @@ pub enum Instruction {
     InclI(Pointer),
     InclS(Pointer),
     InclF(Pointer),
-    Jump(Pointer),
+    Jmp(Pointer),
     JE(Pointer),   // int
     JFE(Pointer),  // float
     JNE(Pointer),  // int

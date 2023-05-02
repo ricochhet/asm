@@ -4,6 +4,8 @@ use std::{
     isize,
 };
 
+// Fowler-Noll-Vo (FNV)
+// https://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function
 pub fn hash(s: String) -> isize {
     let mut hash = 2166136261;
 
@@ -117,10 +119,6 @@ impl Stack {
         self.values.get_mut(i).expect("mutably accessed a nonexistent stack index")
     }
 
-    // TODO: Consider the value of using `Vec::shrink_to_fit()`
-    // I want the user to be primarily in control of memory management.
-    // But I also don't want many "unknowns," should clearing a table, ---
-    // truly clear it?
     pub fn clear_stack(&mut self) {
         self.values.clear();
     }
