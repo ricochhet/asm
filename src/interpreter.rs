@@ -5,7 +5,7 @@ use std::collections::HashMap;
 pub fn compile(buffer: String) {
     let line_splits = buffer.split('\n')
                             .map(|s| s.split_whitespace().collect::<Vec<_>>())
-                            .filter(|s| !matches!(s.as_slice(), [] | ["--", ..]))
+                            .filter(|s| !matches!(s.as_slice(), [] | ["--" | ";", ..]))
                             .collect::<Vec<_>>();
 
     let labels: Labels = line_splits.iter().enumerate().filter_map(|(i, s)| find_label(i, s.as_slice())).collect();
@@ -35,9 +35,7 @@ fn run<'a>(program: Program<'a>) {
             PushFloat(d) => {
                 stack.push_hashed_float(*d);
             }
-            PushStr(d) => {
-                stack.push_hashed_string(d)
-            },
+            PushStr(d) => stack.push_hashed_string(d),
             Pop => {
                 stack.pop();
             }
@@ -148,7 +146,7 @@ fn run<'a>(program: Program<'a>) {
                         stack.delete_hash(a.value);
                     }
                 } else {
-                    let a = *stack.get(*p + call_stack.last().map_or(0, |s| s.stack_offset));
+                    let a = *stack.get(*p as usize + call_stack.last().map_or(0, |s| s.stack_offset));
 
                     if a.hashed {
                         stack.delete_hash(a.value);
@@ -368,7 +366,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["Decr"] => Decr,
         ["Mov", d, p] => Mov(d.parse::<isize>().unwrap(), p.parse::<isize>().unwrap()),
         ["Ld", d] => Ld(d.parse::<isize>().unwrap()),
-        ["DmpHash", p] => DmpHash(p.parse::<Pointer>().unwrap()),
+        ["DmpHash", p] => DmpHash(p.parse::<isize>().unwrap()),
         ["DmpReg", p] => DmpReg(p.parse::<isize>().unwrap()),
         ["Jump", l] => Jump(*labels.get(l).unwrap()),
         ["Cmp", l] => Cmp(*labels.get(l).unwrap()),

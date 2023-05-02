@@ -1,19 +1,27 @@
 # asm-vm
 
-note that the current included test scripts may be outdated
+**The current included test scripts may be outdated.**
+
+## about
+
+This is essentially a virtual machine for a custom "assembly-like" instruction set. This is mostly just a toy project that I want to use for scripting in the future. I wanted to keep it free of "magic" in the sense that the instructions you see are what the instruction does. This also means "memory management" is entirely up to the user. This means every register and hashed value is not removed from their respective table when you remove it from the stack (See `DmpHash` and `DmpReg`). 
+
+Eventually I may add more `simd`-like instructions, primarily adding extended `mov` type instructions for mathematical operations. I will likely make indexing at a specific point in the stack impossible for this registers, as it would get cluttered and become inefficient. As an example, an instruction like `movadd` would perform the exact same operation as `add` but allow you to store it in the specified register.  
 
 ## data structures & architecture
 The virtual machine is split into 3 different data structures to handle various parts of the program.
 
 The primary data structure is a stack, in this case, a `Vec`. The vector contains a list of `StackValue`s which hold important information about each "working" / current value.
 
-A `StackValue` contains an `isize`: value, and a `boolean`: hashed. The isize will contain either integers or a hashed string value, which is indicated by the `hashed` boolean.
+A `StackValue` contains an `isize`: value, and a `boolean`: hashed. The isize will contain either integers or a hashed value, which is indicated by the `hashed` boolean.
 
 The secondary data structure is a hash table, in this case, a `HashMap`, which takes a key `isize` and a value `String`. 
 
 `PushInt` will push a value directly into the stack and mark hashed as `false`. `PushStr` will push an `FNV1A` hashed string into the stack, and mark hashed as `true`. Hashed values will get put into the `hash table` with the FNV1A hash as the key, and raw string as the value. 
 
 A similar design is applied to registers, a register will first get defined using the `Mov x y` instruction, the difference being the register identifier(x) will be directly put into a separate register table. `y` contains a reference to a `StackValue`.
+
+*All non `int` types are hashed.*
 
 ## instructions
 All instructions are currently case-sensitive (subject to change).
@@ -28,11 +36,11 @@ All instructions are currently case-sensitive (subject to change).
 - `Div` `DivF` pops the top two items from the stack, divides them, and pushes the result.
 - `Incr` increments the top item of the stack by one.
 - `Decr` decrements the top item of the stack by one.
-- `Mov x y` moves y index into x register. y is a position in the stack.
+- `Mov x y` moves y index into x register. y is a position in the stack (-1 is the top of the stack).
     - maximum registers(x) is currently the isize max `9223372036854775807`, although you will likely run out memory before hitting this point. 
 - `Ld x` pushes register x to the top of the stack.
-- `DmpHash x` deletes x from the hash table. x is a key.
-- `DmpReg x` deletes x from the register table. x is a key.
+- `DmpHash x` deletes x from the hash table. x is an index in the stack (-1 is the top of the stack).
+- `DmpReg x` deletes x from the register table. x is an index in the stack (-1 is the top of the stack).
 - `Jump x` jump to a defined label(x).
 - `Cmp x` compares the top two items items, and jumps to label(x) if truthy.
 - `Incl x` pops the top two items from the stack. checks if the second to last item in the stack contains the top-most item, jumps to label(x) if truthy.

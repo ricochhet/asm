@@ -18,7 +18,7 @@ pub enum Instruction {
     DivF, // float
     Mov(isize, isize),
     Ld(isize),
-    DmpHash(Pointer),
+    DmpHash(isize),
     DmpReg(isize),
     Cmp(Pointer),
     InclI(Pointer),
