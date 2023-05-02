@@ -1,5 +1,8 @@
 use crate::instructions::Instruction;
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    collections::{BTreeMap, HashMap},
+    isize,
+};
 
 pub fn hash(s: String) -> isize {
     let mut hash = 2166136261;
@@ -31,9 +34,15 @@ pub struct StackValue {
     pub hashed: bool,
 }
 
+#[derive(Debug)]
+pub enum ValueType {
+    String(String),
+    Float(f32),
+}
+
 pub struct Stack {
     pub values: Vec<StackValue>,
-    pub hashmap: HashMap<isize, String>,
+    pub hashmap: HashMap<isize, ValueType>,
     pub registers: HashMap<isize, StackValue>,
 }
 
@@ -49,7 +58,7 @@ impl Stack {
     pub fn print(&mut self) {
         for value in &self.values {
             let hash_str = if value.hashed {
-                format!(" --> Hash: ({})", self.hashmap.get(&value.value).unwrap_or(&String::new()))
+                format!(" --> Hash: ({:?})", self.hashmap.get(&value.value).unwrap_or(&ValueType::String("None".to_string())))
             } else {
                 String::new()
             };
@@ -72,10 +81,16 @@ impl Stack {
         self.values.push(StackValue { value: v, hashed: true });
     }
 
-    pub fn push_hashed_value(&mut self, v: &str) {
+    pub fn push_hashed_string(&mut self, v: &str) {
         let h = hash(v.to_string());
         self.values.push(StackValue { value: h, hashed: true });
-        self.hashmap.insert(h, v.to_string());
+        self.hashmap.insert(h, ValueType::String(v.to_string()));
+    }
+
+    pub fn push_hashed_float(&mut self, v: f32) {
+        let h = hash(v.to_string());
+        self.values.push(StackValue { value: h, hashed: true });
+        self.hashmap.insert(h, ValueType::Float(v));
     }
 
     pub fn delete_hash_value(&mut self, v: isize) {

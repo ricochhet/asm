@@ -32,7 +32,10 @@ fn run<'a>(program: Program<'a>) {
             PushInt(d) => {
                 stack.push_as_value(*d);
             }
-            PushStr(d) => stack.push_hashed_value(d),
+            PushFloat(d) => {
+                stack.push_hashed_float(*d);
+            }
+            PushStr(d) => stack.push_hashed_string(d),
             Pop => {
                 stack.pop();
             }
@@ -43,11 +46,29 @@ fn run<'a>(program: Program<'a>) {
                     stack.push_as_value(a.value + b.value)
                 }
             }
+            AddF => {
+                let (a, b) = (stack.pop(), stack.pop());
+
+                if a.hashed && b.hashed {
+                    if let (Some(ValueType::Float(a)), Some(ValueType::Float(b))) = (stack.hashmap.get(&a.value), stack.hashmap.get(&b.value)) {
+                        stack.push_hashed_float(a + b);
+                    }
+                }
+            }
             Sub => {
                 let (a, b) = (stack.pop(), stack.pop());
 
                 if !a.hashed && !b.hashed {
                     stack.push_as_value(b.value - a.value)
+                }
+            }
+            SubF => {
+                let (a, b) = (stack.pop(), stack.pop());
+
+                if a.hashed && b.hashed {
+                    if let (Some(ValueType::Float(a)), Some(ValueType::Float(b))) = (stack.hashmap.get(&a.value), stack.hashmap.get(&b.value)) {
+                        stack.push_hashed_float(b - a);
+                    }
                 }
             }
             Mul => {
@@ -57,11 +78,29 @@ fn run<'a>(program: Program<'a>) {
                     stack.push_as_value(a.value * b.value)
                 }
             }
+            MulF => {
+                let (a, b) = (stack.pop(), stack.pop());
+
+                if a.hashed && b.hashed {
+                    if let (Some(ValueType::Float(a)), Some(ValueType::Float(b))) = (stack.hashmap.get(&a.value), stack.hashmap.get(&b.value)) {
+                        stack.push_hashed_float(a * b);
+                    }
+                }
+            }
             Div => {
                 let (a, b) = (stack.pop(), stack.pop());
 
                 if !a.hashed && !b.hashed {
                     stack.push_as_value(b.value / a.value)
+                }
+            }
+            DivF => {
+                let (a, b) = (stack.pop(), stack.pop());
+
+                if a.hashed && b.hashed {
+                    if let (Some(ValueType::Float(a)), Some(ValueType::Float(b))) = (stack.hashmap.get(&a.value), stack.hashmap.get(&b.value)) {
+                        stack.push_hashed_float(b / a);
+                    }
                 }
             }
             Cmp(p) => {
@@ -84,7 +123,7 @@ fn run<'a>(program: Program<'a>) {
             Mov(d, p) => {
                 let a = *stack.get(*p + call_stack.last().map_or(0, |s| s.stack_offset));
                 stack.push_register(*d, a);
-            },
+            }
             Ld(d) => {
                 if let Some(register) = stack.registers.get(d) {
                     if register.hashed {
@@ -101,22 +140,39 @@ fn run<'a>(program: Program<'a>) {
                 stack.delete_register(*p);
             }
             Jump(p) => pointer = *p,
-            Incl(p) => {
+            InclI(p) => {
                 let (a, b) = (stack.pop(), stack.pop());
 
-                if a.hashed && b.hashed {
-                    if let (Some(str1), Some(str2)) = (stack.hashmap.get(&a.value), stack.hashmap.get(&b.value)) {
-                        if str2.contains(str1) {
-                            stack.push_as_hashed(b.value);
-                            pointer = *p;
-                        }
-                    }
-                } else if !a.hashed && !b.hashed {
+                if !a.hashed && !b.hashed {
                     let (str1, str2) = (&a.value.to_string(), &b.value.to_string());
 
                     if str2.contains(str1) {
                         stack.push_as_value(b.value);
                         pointer = *p;
+                    }
+                }
+            }
+            InclS(p) => {
+                let (a, b) = (stack.pop(), stack.pop());
+
+                if a.hashed && b.hashed {
+                    if let (Some(ValueType::String(str1)), Some(ValueType::String(str2))) = (stack.hashmap.get(&a.value), stack.hashmap.get(&b.value)) {
+                        if str2.contains(str1) {
+                            stack.push_as_hashed(b.value);
+                            pointer = *p;
+                        }
+                    }
+                }
+            }
+            InclF(p) => {
+                let (a, b) = (stack.pop(), stack.pop());
+
+                if a.hashed && b.hashed {
+                    if let (Some(ValueType::Float(str1)), Some(ValueType::Float(str2))) = (stack.hashmap.get(&a.value), stack.hashmap.get(&b.value)) {
+                        if str2.to_string().contains(&str1.to_string()) {
+                            stack.push_as_hashed(b.value);
+                            pointer = *p;
+                        }
                     }
                 }
             }
@@ -126,10 +182,34 @@ fn run<'a>(program: Program<'a>) {
                     pointer = *p;
                 }
             }
+            JFE(p) => {
+                let a = stack.peek();
+
+                if a.hashed {
+                    if let Some(ValueType::Float(v)) = stack.hashmap.get(&a.value) {
+                        if *v == 0.0_f32 {
+                            stack.pop();
+                            pointer = *p;
+                        }
+                    }
+                }
+            }
             JNE(p) => {
                 if stack.peek().value != 0 {
                     stack.pop();
                     pointer = *p;
+                }
+            }
+            JFNE(p) => {
+                let a = stack.peek();
+
+                if a.hashed {
+                    if let Some(ValueType::Float(v)) = stack.hashmap.get(&a.value) {
+                        if *v != 0.0_f32 {
+                            stack.pop();
+                            pointer = *p;
+                        }
+                    }
                 }
             }
             JGT(p) => {
@@ -138,10 +218,34 @@ fn run<'a>(program: Program<'a>) {
                     pointer = *p;
                 }
             }
+            JFGT(p) => {
+                let a = stack.peek();
+
+                if a.hashed {
+                    if let Some(ValueType::Float(v)) = stack.hashmap.get(&a.value) {
+                        if *v > 0.0_f32 {
+                            stack.pop();
+                            pointer = *p;
+                        }
+                    }
+                }
+            }
             JLT(p) => {
                 if stack.peek().value < 0 {
                     stack.pop();
                     pointer = *p;
+                }
+            }
+            JFLT(p) => {
+                let a = stack.peek();
+
+                if a.hashed {
+                    if let Some(ValueType::Float(v)) = stack.hashmap.get(&a.value) {
+                        if *v < 0.0_f32 {
+                            stack.pop();
+                            pointer = *p;
+                        }
+                    }
                 }
             }
             JGE(p) => {
@@ -150,10 +254,34 @@ fn run<'a>(program: Program<'a>) {
                     pointer = *p;
                 }
             }
+            JFGE(p) => {
+                let a = stack.peek();
+
+                if a.hashed {
+                    if let Some(ValueType::Float(v)) = stack.hashmap.get(&a.value) {
+                        if *v >= 0.0_f32 {
+                            stack.pop();
+                            pointer = *p;
+                        }
+                    }
+                }
+            }
             JLE(p) => {
                 if stack.peek().value <= 0 {
                     stack.pop();
                     pointer = *p;
+                }
+            }
+            JFLE(p) => {
+                let a = stack.peek();
+
+                if a.hashed {
+                    if let Some(ValueType::Float(v)) = stack.hashmap.get(&a.value) {
+                        if *v <= 0.0_f32 {
+                            stack.pop();
+                            pointer = *p;
+                        }
+                    }
                 }
             }
             Get(i) => {
@@ -206,12 +334,17 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
 
     match s {
         ["PushInt", x] => PushInt(x.parse::<isize>().unwrap()),
+        ["PushFloat", x] => PushFloat(x.parse::<f32>().unwrap()),
         ["PushStr", x] => PushStr(x.parse::<String>().unwrap()),
         ["Pop"] => Pop,
-        ["Add"] => Add,
-        ["Sub"] => Sub,
-        ["Mul"] => Mul,
-        ["Div"] => Div,
+        ["Add"] => Add,   // int
+        ["AddF"] => AddF, // float
+        ["Sub"] => Sub,   // int
+        ["SubF"] => SubF, // float
+        ["Mul"] => Mul,   // int
+        ["MulF"] => MulF, // float
+        ["Div"] => Div,   // int
+        ["DivF"] => DivF, // float
         ["Incr"] => Incr,
         ["Decr"] => Decr,
         ["Mov", d, p] => Mov(d.parse::<isize>().unwrap(), p.parse::<usize>().unwrap()),
@@ -220,13 +353,19 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["DmpReg", p] => DmpReg(p.parse::<isize>().unwrap()),
         ["Jump", l] => Jump(*labels.get(l).unwrap()),
         ["Cmp", l] => Cmp(*labels.get(l).unwrap()),
-        ["Incl", l] => Incl(*labels.get(l).unwrap()),
-        ["JE", l] => JE(*labels.get(l).unwrap()),
-        ["JNE", l] => JNE(*labels.get(l).unwrap()),
-        ["JGE", l] => JGE(*labels.get(l).unwrap()),
-        ["JLE", l] => JLE(*labels.get(l).unwrap()),
-        ["JGT", l] => JGT(*labels.get(l).unwrap()),
-        ["JLT", l] => JLT(*labels.get(l).unwrap()),
+        ["Incl", l] => InclI(*labels.get(l).unwrap()),
+        ["JE", l] => JE(*labels.get(l).unwrap()),     // int
+        ["JFE", l] => JFE(*labels.get(l).unwrap()),   // float
+        ["JNE", l] => JNE(*labels.get(l).unwrap()),   // int
+        ["JFNE", l] => JFNE(*labels.get(l).unwrap()), // float
+        ["JGE", l] => JGE(*labels.get(l).unwrap()),   // int
+        ["JFGE", l] => JFGE(*labels.get(l).unwrap()), // float
+        ["JLE", l] => JLE(*labels.get(l).unwrap()),   // int
+        ["JFLE", l] => JFLE(*labels.get(l).unwrap()), // float
+        ["JGT", l] => JGT(*labels.get(l).unwrap()),   // int
+        ["JFGT", l] => JFGT(*labels.get(l).unwrap()), // float
+        ["JLT", l] => JLT(*labels.get(l).unwrap()),   // int
+        ["JFLT", l] => JFLT(*labels.get(l).unwrap()), // float
         ["Get", p] => Get(p.parse::<Pointer>().unwrap()),
         ["Set", p] => Set(p.parse::<Pointer>().unwrap()),
         ["GetArg", p] => GetArg(p.parse::<Pointer>().unwrap()),
