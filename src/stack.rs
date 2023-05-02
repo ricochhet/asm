@@ -123,7 +123,7 @@ impl Stack {
         self.values.clear();
     }
 
-    pub fn clear_hashmap(&mut self,) {
+    pub fn clear_hashmap(&mut self) {
         self.hashmap.clear();
     }
 

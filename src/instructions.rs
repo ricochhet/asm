@@ -8,18 +8,18 @@ pub enum Instruction {
     Pop,
     ClsStk, // clear
     DlcStk, // dealloc
-    Add,  // int
-    AddF, // float
-    Sub,  // int
-    SubF, // float
-    Incr, // int
-    Decr, // int
-    Mul,  // int
-    MulF, // float
-    Div,  // int
-    DivF, // float
-    Mod,  // int
-    ModF, // Float
+    Add,    // int
+    AddF,   // float
+    Sub,    // int
+    SubF,   // float
+    Incr,   // int
+    Decr,   // int
+    Mul,    // int
+    MulF,   // float
+    Div,    // int
+    DivF,   // float
+    Mod,    // int
+    ModF,   // Float
     Mov(isize, isize),
     Ld(isize),
     DmpHash(isize),

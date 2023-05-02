@@ -39,9 +39,7 @@ fn run<'a>(program: Program<'a>) {
             Pop => {
                 stack.pop();
             }
-            ClsStk => {
-                stack.clear_stack()
-            }
+            ClsStk => stack.clear_stack(),
             DlcStk => {
                 stack.shrink_stack();
             }
@@ -178,18 +176,12 @@ fn run<'a>(program: Program<'a>) {
             ClsHash => {
                 stack.clear_hashmap();
             }
-            DlcHash => {
-                stack.shrink_hashmap()
-            }
+            DlcHash => stack.shrink_hashmap(),
             DmpReg(p) => {
                 stack.delete_register(*p);
             }
-            ClsReg => {
-                stack.clear_registers()
-            }
-            DlcReg => {
-                stack.shrink_registers()
-            }
+            ClsReg => stack.clear_registers(),
+            DlcReg => stack.shrink_registers(),
             Jmp(p) => pointer = *p,
             InclI(p) => {
                 let (a, b) = (stack.pop(), stack.pop());
@@ -390,26 +382,26 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["pop"] => Pop,
         ["clsstk"] => ClsStk, // clear table
         ["dlcstk"] => DlcStk, // shrink_to_fit / dealloc table
-        ["add"] => Add,   // int
-        ["addf"] => AddF, // float
-        ["sub"] => Sub,   // int
-        ["subf"] => SubF, // float
-        ["mul"] => Mul,   // int
-        ["mulf"] => MulF, // float
-        ["div"] => Div,   // int
-        ["divf"] => DivF, // float
-        ["mod"] => Mod,   // int
-        ["modf"] => ModF, // float
+        ["add"] => Add,       // int
+        ["addf"] => AddF,     // float
+        ["sub"] => Sub,       // int
+        ["subf"] => SubF,     // float
+        ["mul"] => Mul,       // int
+        ["mulf"] => MulF,     // float
+        ["div"] => Div,       // int
+        ["divf"] => DivF,     // float
+        ["mod"] => Mod,       // int
+        ["modf"] => ModF,     // float
         ["incr"] => Incr,
         ["decr"] => Decr,
         ["mov", d, p] => Mov(d.parse::<isize>().unwrap(), p.parse::<isize>().unwrap()),
         ["ld", d] => Ld(d.parse::<isize>().unwrap()),
         ["dmphash", p] => DmpHash(p.parse::<isize>().unwrap()), // remove key
-        ["clshash"] => ClsHash, // clear table
-        ["dlchash"] => DlcHash, // shrink_to_fit / dealloc table
-        ["dmpreg", p] => DmpReg(p.parse::<isize>().unwrap()), // remove key
-        ["clsreg"] => ClsReg,   // clear table
-        ["dlcreg"] => DlcReg,   // shrink_to_fit / dealloc table
+        ["clshash"] => ClsHash,                                 // clear table
+        ["dlchash"] => DlcHash,                                 // shrink_to_fit / dealloc table
+        ["dmpreg", p] => DmpReg(p.parse::<isize>().unwrap()),   // remove key
+        ["clsreg"] => ClsReg,                                   // clear table
+        ["dlcreg"] => DlcReg,                                   // shrink_to_fit / dealloc table
         ["jmp", l] => Jmp(*labels.get(l).unwrap()),
         ["cmp", l] => Cmp(*labels.get(l).unwrap()),
         ["incl", l] => InclI(*labels.get(l).unwrap()),
