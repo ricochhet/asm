@@ -20,6 +20,9 @@ use crate::stack::Pointer;
 // Should instructions like cls* and dlc* be converted to a clear * and dealloc * type? I'm personally not a huge fan
 // of having to specify an enum-like string such as "clear stack" or "dealloc hash" but it would be confusing to use
 // integers to reference what we want to delete or clear as well.
+//
+// There's not really anything wrong with making more verbose instructions like "dealloc_hash" but I want to keep the "trend"
+// of an assembly like language abbreviating everything, just because I think it looks cool and overly technical.
 #[derive(Debug)]
 pub enum Instruction {
     PushInt(isize),
