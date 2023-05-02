@@ -93,16 +93,8 @@ impl Stack {
         self.hashmap.insert(h, ValueType::Float(v));
     }
 
-    pub fn delete_hash(&mut self, v: isize) {
-        self.hashmap.remove(&v);
-    }
-
     pub fn push_register(&mut self, r: isize, v: StackValue) {
         self.registers.insert(r, v);
-    }
-
-    pub fn delete_register(&mut self, v: isize) {
-        self.registers.remove(&v);
     }
 
     pub fn pop(&mut self) -> StackValue {
@@ -123,5 +115,29 @@ impl Stack {
 
     pub fn get_mut(&mut self, i: usize) -> &mut StackValue {
         self.values.get_mut(i).expect("mutably accessed a nonexistent stack index")
+    }
+
+    // TODO: Consider the value of using `Vec::shrink_to_fit()`
+    // I want the user to be primarily in control of memory management.
+    // But I also don't want many "unknowns," should clearing a table, ---
+    // truly clear it?
+    pub fn clear_stack(&mut self) {
+        self.values.clear();
+    }
+
+    pub fn clear_hashmap(&mut self,) {
+        self.hashmap.clear();
+    }
+
+    pub fn clear_registers(&mut self) {
+        self.registers.clear();
+    }
+
+    pub fn delete_register(&mut self, v: isize) {
+        self.registers.remove(&v);
+    }
+
+    pub fn delete_hash(&mut self, v: isize) {
+        self.hashmap.remove(&v);
     }
 }
