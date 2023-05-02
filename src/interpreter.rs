@@ -15,7 +15,7 @@ pub fn compile(buffer: String) {
     run(&instructions[..]);
 }
 
-fn run<'a>(program: Program<'a>) {
+fn run(program: Program<'_>) {
     use Instruction::*;
 
     let mut stack: Stack = Stack { values: Vec::new(),
@@ -131,17 +131,15 @@ fn run<'a>(program: Program<'a>) {
                         stack.push_as_hashed(b.value);
                         pointer = *p;
                     }
-                } else if !a.hashed && !b.hashed {
-                    if b.value == a.value {
-                        stack.push_as_value(b.value);
-                        pointer = *p;
-                    }
+                } else if !a.hashed && !b.hashed && b.value == a.value {
+                    stack.push_as_value(b.value);
+                    pointer = *p;
                 }
             }
             Incr => stack.peek_mut().value += 1,
             Decr => stack.peek_mut().value -= 1,
             Mov(d, p) => {
-                if *p as isize == -1 {
+                if *p == -1 {
                     let b = stack.peek();
                     stack.push_register(*d, b);
                 } else {
@@ -159,7 +157,7 @@ fn run<'a>(program: Program<'a>) {
                 }
             }
             DmpHash(p) => {
-                if *p as isize == -1 {
+                if *p == -1 {
                     let a = stack.peek();
 
                     if a.hashed {
@@ -448,7 +446,7 @@ fn find_procedures<'a>(lines: &'a [Vec<&str>]) -> Procedures<'a> {
     while ip < lines.len() {
         if let ["Proc", proc_name] = lines[ip].as_slice() {
             let start_ip = ip;
-            while lines[ip] != &["End"] {
+            while lines[ip] != ["End"] {
                 ip += 1;
             }
             res.insert(proc_name, (start_ip, ip + 1));
