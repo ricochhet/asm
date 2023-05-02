@@ -32,6 +32,8 @@ Instructions that have two variations follow an `int` `float` pattern. These ins
 - `pushfloat x` push a float(x) to the top of the stack.
 - `pushstr x` push a string(x) to the top of the stack.
 - `pop` pop the top item from the stack.
+- `conpop` conditionally pop the top item from the stack if the stack is not empty.
+- `dup` duplicate the top item of the stack.
 - `clsstk` clears the entire stack.
 - `dlcstk` dealloc stack. Performs `shrink_to_fit()`. `clear()` does not deallocate memory.
 - `add` `addf` pops the top two items from the stack, adds them, and pushes the result.
@@ -63,12 +65,15 @@ Instructions that have two variations follow an `int` `float` pattern. These ins
 - `set x` sets an index(x) relative to the last item in the call stack to the top of the call stack.
 - `getarg x` gets an index(x) in the stack, and pushes the item at the index in stack to the top.
 - `setarg x` sets an index(x) relative to the last item in the call stack to the top of the call stack.
-- `prnt` prints the top-most value in the stack
-- `prntc` prints the top-most value in the stack as a char
-- `prntstk` prints everything in the stack (primarily for debugging)
-- `prntreg` prints everything in the register table (primarily for debugging)
-- `call x` calls a defined process(x) (`proc`)
-- `ret` returns / exits the current context / "closure"
+- `prnt` prints the top-most value in the stack.
+- `prntln` prints the top-most value in the stack with a \n.
+- `prntc` prints the top-most value in the stack as a char.
+- `prntcln` prints the top-most value in the stack as a char with a \n.
+- `prntstr x` prints value x as astring with a \n.
+- `prntstk` prints everything in the stack (primarily for debugging).
+- `prntreg` prints everything in the register table (primarily for debugging).
+- `call x` calls a defined process(x) (`proc`).
+- `ret` returns / exits the current context / "closure."
 - `proc x` `end` define a high order label(x), which most be closed via the `end` keyword.
 - `label x` define a label(x), which can be jumped to based on jump instructions.
     - Truthy instructions will fall through to the label if `ret` is not declared before the labels, whether they evaluated to true or not.

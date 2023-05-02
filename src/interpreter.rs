@@ -39,6 +39,15 @@ fn run(program: Program<'_>) {
             Pop => {
                 stack.pop();
             }
+            Conpop => {
+                if stack.len() != 0 {
+                    stack.pop();
+                }
+            }
+            Dup => {
+                let a = stack.peek().value;
+                stack.push_as_value(a);
+            }
             ClsStk => stack.clear_stack(),
             DlcStk => {
                 stack.shrink_stack();
@@ -111,7 +120,7 @@ fn run(program: Program<'_>) {
                 let (a, b) = (stack.pop(), stack.pop());
 
                 if !a.hashed && !b.hashed {
-                    stack.push_as_value(b.value % a.value)
+                    stack.push_as_value(b.value % a.value);
                 }
             }
             ModF => {
@@ -353,7 +362,10 @@ fn run(program: Program<'_>) {
                 *stack.get_mut(offset_i) = new_val;
             }
             Prnt => print!("{}", stack.peek().value),
+            PrntStr(d) => println!("{}", d),
+            Prntln => println!("{}", stack.peek().value),
             PrntC => print!("{}", stack.peek().value as u8 as char),
+            PrntCln => println!("{}", stack.peek().value as u8 as char),
             PrntStk => {
                 stack.print();
             }
@@ -378,6 +390,8 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["pushfloat", x] => PushFloat(x.parse::<f32>().unwrap()),
         ["pushstring", x] => PushStr(x.parse::<String>().unwrap()),
         ["pop"] => Pop,
+        ["conpop"] => Conpop,
+        ["dup"] => Dup,
         ["clsstk"] => ClsStk, // clear table
         ["dlcstk"] => DlcStk, // shrink_to_fit / dealloc table
         ["add"] => Add,       // int
@@ -420,7 +434,10 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["getarg", p] => GetArg(p.parse::<Pointer>().unwrap()),
         ["setarg", p] => SetArg(p.parse::<Pointer>().unwrap()),
         ["prnt"] => Prnt,
+        ["prntstr", d] => PrntStr(d.parse::<String>().unwrap()),
+        ["prntln"] => Prntln,
         ["prntc"] => PrntC,
+        ["prntcln"] => PrntCln,
         ["prntstk"] => PrntStk,
         ["prntreg"] => PrntReg,
         ["proc", proc] => Jmp(procedures.get(proc).unwrap().1),
@@ -444,9 +461,9 @@ fn find_procedures<'a>(lines: &'a [Vec<&str>]) -> Procedures<'a> {
     let mut res = Procedures::new();
 
     while ip < lines.len() {
-        if let ["Proc", proc_name] = lines[ip].as_slice() {
+        if let ["proc", proc_name] = lines[ip].as_slice() {
             let start_ip = ip;
-            while lines[ip] != ["End"] {
+            while lines[ip] != ["end"] {
                 ip += 1;
             }
             res.insert(proc_name, (start_ip, ip + 1));

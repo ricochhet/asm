@@ -1,30 +1,30 @@
-Proc fib
-    Decr
-    JLE retOne
+proc fib
+    decr
+    jle retOne
 
-    -- [n - 1 |]
-    GetArg 0
-    -- [n - 1 | n - 1]
-    Call fib
-    -- [n - 1 | fib(n - 1)]
-    GetArg 0
-    Decr
-    -- [n - 1 | fib(n - 1), n - 2]
-    Call fib
-    Add
-    -- [n - 1 | fib(n - 1) + fib(n - 2)]
-    SetArg 0
-    Pop
-    Ret
+    ; [n - 1 |]
+    getarg 0
+    ; [n - 1 | n - 1]
+    call fib
+    ; [n - 1 | fib(n - 1)]
+    getarg 0
+    decr
+    ; [n - 1 | fib(n - 1), n - 2]
+    call fib
+    add
+    ; [n - 1 | fib(n - 1) + fib(n - 2)]
+    setarg 0
+    pop
+    ret
 
     label retOne
-        Push 1
-        Ret
-End
+        pushint 1
+        ret
+end
 
-Push 35
-Call fib
-Print
+pushint 34
+call fib
+prnt
 
-Push 10
-PrintC
+pushint 10
+prntc

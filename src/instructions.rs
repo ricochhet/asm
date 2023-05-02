@@ -6,6 +6,8 @@ pub enum Instruction {
     PushFloat(f32),
     PushStr(String),
     Pop,
+    Conpop,
+    Dup,
     ClsStk, // clear
     DlcStk, // dealloc
     Add,    // int
@@ -51,7 +53,10 @@ pub enum Instruction {
     SetArg(Pointer),
     Noop,
     Prnt,
+    PrntStr(String),
+    Prntln,
     PrntC,
+    PrntCln,
     PrntStk,
     PrntReg,
     Call(Pointer),
