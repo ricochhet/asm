@@ -39,6 +39,12 @@ fn run<'a>(program: Program<'a>) {
             Pop => {
                 stack.pop();
             }
+            ClsStk => {
+                stack.clear_stack()
+            }
+            DlcStk => {
+                stack.shrink_stack();
+            }
             Add => {
                 let (a, b) = (stack.pop(), stack.pop());
 
@@ -169,8 +175,20 @@ fn run<'a>(program: Program<'a>) {
                     }
                 }
             }
+            ClsHash => {
+                stack.clear_hashmap();
+            }
+            DlcHash => {
+                stack.shrink_hashmap()
+            }
             DmpReg(p) => {
                 stack.delete_register(*p);
+            }
+            ClsReg => {
+                stack.clear_registers()
+            }
+            DlcReg => {
+                stack.shrink_registers()
             }
             Jump(p) => pointer = *p,
             InclI(p) => {
@@ -344,12 +362,12 @@ fn run<'a>(program: Program<'a>) {
 
                 *stack.get_mut(offset_i) = new_val;
             }
-            Print => print!("{}", stack.peek().value),
-            PrintC => print!("{}", stack.peek().value as u8 as char),
-            PrintStack => {
+            Prnt => print!("{}", stack.peek().value),
+            PrntC => print!("{}", stack.peek().value as u8 as char),
+            PrntStk => {
                 stack.print();
             }
-            PrintRegisters => {
+            PrntReg => {
                 stack.print_registers();
             }
             Call(p) => {
@@ -370,6 +388,8 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["pushfloat", x] => PushFloat(x.parse::<f32>().unwrap()),
         ["pushstring", x] => PushStr(x.parse::<String>().unwrap()),
         ["pop"] => Pop,
+        ["clsstk"] => ClsStk, // clear table
+        ["dlcstk"] => DlcStk, // shrink_to_fit / dealloc table
         ["add"] => Add,   // int
         ["addf"] => AddF, // float
         ["sub"] => Sub,   // int
@@ -384,8 +404,12 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["decr"] => Decr,
         ["mov", d, p] => Mov(d.parse::<isize>().unwrap(), p.parse::<isize>().unwrap()),
         ["ld", d] => Ld(d.parse::<isize>().unwrap()),
-        ["dmphash", p] => DmpHash(p.parse::<isize>().unwrap()),
-        ["dmpreg", p] => DmpReg(p.parse::<isize>().unwrap()),
+        ["dmphash", p] => DmpHash(p.parse::<isize>().unwrap()), // remove key
+        ["clshash"] => ClsHash, // clear table
+        ["dlchash"] => DlcHash, // shrink_to_fit / dealloc table
+        ["dmpreg", p] => DmpReg(p.parse::<isize>().unwrap()), // remove key
+        ["clsreg"] => ClsReg,   // clear table
+        ["dlcreg"] => DlcReg,   // shrink_to_fit / dealloc table
         ["jump", l] => Jump(*labels.get(l).unwrap()),
         ["cmp", l] => Cmp(*labels.get(l).unwrap()),
         ["incl", l] => InclI(*labels.get(l).unwrap()),
@@ -405,10 +429,10 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["set", p] => Set(p.parse::<Pointer>().unwrap()),
         ["getarg", p] => GetArg(p.parse::<Pointer>().unwrap()),
         ["setarg", p] => SetArg(p.parse::<Pointer>().unwrap()),
-        ["prnt"] => Print,
-        ["prntc"] => PrintC,
-        ["prntstk"] => PrintStack,
-        ["prntreg"] => PrintRegisters,
+        ["prnt"] => Prnt,
+        ["prntc"] => PrntC,
+        ["prntstk"] => PrntStk,
+        ["prntreg"] => PrntReg,
         ["proc", proc] => Jump(procedures.get(proc).unwrap().1),
         ["call", proc] => Call(procedures.get(proc).unwrap().0 + 1),
         ["ret"] => Ret,

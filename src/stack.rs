@@ -140,4 +140,16 @@ impl Stack {
     pub fn delete_hash(&mut self, v: isize) {
         self.hashmap.remove(&v);
     }
+
+    pub fn shrink_stack(&mut self) {
+        self.values.shrink_to_fit();
+    }
+
+    pub fn shrink_hashmap(&mut self) {
+        self.hashmap.shrink_to_fit();
+    }
+
+    pub fn shrink_registers(&mut self) {
+        self.registers.shrink_to_fit();
+    }
 }

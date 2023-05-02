@@ -26,22 +26,30 @@ A similar design is applied to registers, a register will first get defined usin
 ## instructions
 All instructions are currently case-sensitive (subject to change).
 
+Instructions that have two variations follow an `int` `float` pattern. These instructions are separated because float operations require a hash table lookup for the value.
+
 - `pushint x` push an integer(x) to the top of the stack.
 - `pushfloat x` push a float(x) to the top of the stack.
 - `pushstr x` push a string(x) to the top of the stack.
 - `pop` pop the top item from the stack.
+- `clsstk` clears the entire stack.
+- `dlcstk` dealloc stack. Performs `shrink_to_fit()`. `clear()` does not deallocate memory.
 - `add` `addf` pops the top two items from the stack, adds them, and pushes the result.
-- `sub` `subF` pops the top two items from the stack, subtracts them, and pushes the result.
-- `mul` `mulF` pops the top two items from the stack, multiplies them, and pushes the result.
-- `div` `divF` pops the top two items from the stack, divides them, and pushes the result.
-- `mod` `modF` pops the top two items from the stack, returns the remainder of them, and pushes the result.
+- `sub` `subf` pops the top two items from the stack, subtracts them, and pushes the result.
+- `mul` `mulf` pops the top two items from the stack, multiplies them, and pushes the result.
+- `div` `divf` pops the top two items from the stack, divides them, and pushes the result.
+- `mod` `modf` pops the top two items from the stack, returns the remainder of them, and pushes the result.
 - `incr` increments the top item of the stack by one.
 - `decr` decrements the top item of the stack by one.
 - `mov x y` moves y index into x register. y is a position in the stack (-1 is the top of the stack).
     - maximum registers(x) is currently the isize max `9223372036854775807`, although you will likely run out memory before hitting this point. 
 - `ld x` pushes register x to the top of the stack.
 - `dmphash x` deletes x from the hash table. x is an index in the stack (-1 is the top of the stack).
+- `clshash` clears the entire hash table.
+- `dlchash` dealloc hash table. Performs `shrink_to_fit()`. `clear()` does not deallocate memory.
 - `dmpreg x` deletes x from the register table. x is an index in the stack (-1 is the top of the stack).
+- `clsreg` clears the entire register table.
+- `dlcreg` dealloc register table. Performs `shrink_to_fit()`. `clear()` does not deallocate memory.
 - `jump x` jump to a defined label(x).
 - `cmp x` compares the top two items items, and jumps to label(x) if truthy.
 - `incl x` pops the top two items from the stack. checks if the second to last item in the stack contains the top-most item, jumps to label(x) if truthy.
@@ -64,4 +72,4 @@ All instructions are currently case-sensitive (subject to change).
 - `proc x` `end` define a high order label(x), which most be closed via the `end` keyword.
 - `label x` define a label(x), which can be jumped to based on jump instructions.
     - Truthy instructions will fall through to the label if `ret` is not declared before the labels, whether they evaluated to true or not.
-- `-- x` defines a code comment(x), multiline is not supported.
+- `-- x` `; x` defines a code comment(x), multiline is not supported, inline comments are not supported.

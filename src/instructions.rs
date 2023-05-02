@@ -6,6 +6,8 @@ pub enum Instruction {
     PushFloat(f32),
     PushStr(String),
     Pop,
+    ClsStk, // clear
+    DlcStk, // dealloc
     Add,  // int
     AddF, // float
     Sub,  // int
@@ -21,7 +23,11 @@ pub enum Instruction {
     Mov(isize, isize),
     Ld(isize),
     DmpHash(isize),
+    ClsHash, // clear
+    DlcHash, // dealloc
     DmpReg(isize),
+    ClsReg, // clear
+    DlcReg, // dealloc
     Cmp(Pointer),
     InclI(Pointer),
     InclS(Pointer),
@@ -44,10 +50,10 @@ pub enum Instruction {
     GetArg(Pointer),
     SetArg(Pointer),
     Noop,
-    Print,
-    PrintC,
-    PrintStack,
-    PrintRegisters,
+    Prnt,
+    PrntC,
+    PrntStk,
+    PrntReg,
     Call(Pointer),
     Ret,
 }
