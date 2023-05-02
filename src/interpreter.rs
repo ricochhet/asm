@@ -141,7 +141,19 @@ fn run<'a>(program: Program<'a>) {
                 }
             }
             DmpHash(p) => {
-                stack.delete_hash(*p);
+                if *p as isize == -1 {
+                    let a = stack.peek();
+
+                    if a.hashed {
+                        stack.delete_hash(a.value);
+                    }
+                } else {
+                    let a = *stack.get(*p + call_stack.last().map_or(0, |s| s.stack_offset));
+
+                    if a.hashed {
+                        stack.delete_hash(a.value);
+                    }
+                }
             }
             DmpReg(p) => {
                 stack.delete_register(*p);
@@ -356,7 +368,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["Decr"] => Decr,
         ["Mov", d, p] => Mov(d.parse::<isize>().unwrap(), p.parse::<isize>().unwrap()),
         ["Ld", d] => Ld(d.parse::<isize>().unwrap()),
-        ["DmpHash", p] => DmpHash(p.parse::<isize>().unwrap()),
+        ["DmpHash", p] => DmpHash(p.parse::<Pointer>().unwrap()),
         ["DmpReg", p] => DmpReg(p.parse::<isize>().unwrap()),
         ["Jump", l] => Jump(*labels.get(l).unwrap()),
         ["Cmp", l] => Cmp(*labels.get(l).unwrap()),
