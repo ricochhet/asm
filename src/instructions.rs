@@ -16,7 +16,7 @@ pub enum Instruction {
     MulF, // float
     Div,  // int
     DivF, // float
-    Mov(isize, Pointer),
+    Mov(isize, isize),
     Ld(isize),
     DmpHash(isize),
     DmpReg(isize),

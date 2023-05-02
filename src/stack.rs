@@ -93,7 +93,7 @@ impl Stack {
         self.hashmap.insert(h, ValueType::Float(v));
     }
 
-    pub fn delete_hash_value(&mut self, v: isize) {
+    pub fn delete_hash(&mut self, v: isize) {
         self.hashmap.remove(&v);
     }
 

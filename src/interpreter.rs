@@ -35,7 +35,9 @@ fn run<'a>(program: Program<'a>) {
             PushFloat(d) => {
                 stack.push_hashed_float(*d);
             }
-            PushStr(d) => stack.push_hashed_string(d),
+            PushStr(d) => {
+                stack.push_hashed_string(d)
+            },
             Pop => {
                 stack.pop();
             }
@@ -121,8 +123,13 @@ fn run<'a>(program: Program<'a>) {
             Incr => stack.peek_mut().value += 1,
             Decr => stack.peek_mut().value -= 1,
             Mov(d, p) => {
-                let a = *stack.get(*p + call_stack.last().map_or(0, |s| s.stack_offset));
-                stack.push_register(*d, a);
+                if *p as isize == -1 {
+                    let b = stack.peek();
+                    stack.push_register(*d, b);
+                } else {
+                    let a = *stack.get(*p as usize + call_stack.last().map_or(0, |s| s.stack_offset));
+                    stack.push_register(*d, a);
+                }
             }
             Ld(d) => {
                 if let Some(register) = stack.registers.get(d) {
@@ -134,7 +141,7 @@ fn run<'a>(program: Program<'a>) {
                 }
             }
             DmpHash(p) => {
-                stack.delete_hash_value(*p);
+                stack.delete_hash(*p);
             }
             DmpReg(p) => {
                 stack.delete_register(*p);
@@ -347,7 +354,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["DivF"] => DivF, // float
         ["Incr"] => Incr,
         ["Decr"] => Decr,
-        ["Mov", d, p] => Mov(d.parse::<isize>().unwrap(), p.parse::<usize>().unwrap()),
+        ["Mov", d, p] => Mov(d.parse::<isize>().unwrap(), p.parse::<isize>().unwrap()),
         ["Ld", d] => Ld(d.parse::<isize>().unwrap()),
         ["DmpHash", p] => DmpHash(p.parse::<isize>().unwrap()),
         ["DmpReg", p] => DmpReg(p.parse::<isize>().unwrap()),
