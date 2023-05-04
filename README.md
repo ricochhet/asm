@@ -32,7 +32,6 @@ Instructions that have two variations follow an `int` `float` pattern. These ins
 - `pushfloat x` push a float(x) to the top of the stack.
 - `pushstr x` push a string(x) to the top of the stack.
 - `pop` pop the top item from the stack.
-- `conpop` conditionally pop the top item from the stack if the stack is not empty.
 - `dup` duplicate the top item of the stack.
 - `swap` swaps the top two items on the stack.
 - `clsstk` clears the entire stack.

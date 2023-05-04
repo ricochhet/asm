@@ -29,7 +29,6 @@ pub enum Instruction {
     PushFloat(f32),
     PushStr(String),
     Pop,
-    Conpop,
     Dup,
     Swap,
     ClsStk, // clear

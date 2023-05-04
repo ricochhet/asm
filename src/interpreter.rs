@@ -39,11 +39,6 @@ fn run(program: Program<'_>) {
             Pop => {
                 stack.pop();
             }
-            Conpop => {
-                if stack.len() != 0 {
-                    stack.pop();
-                }
-            }
             Dup => {
                 let a = stack.peek();
 
@@ -410,7 +405,6 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["pushfloat", x] => PushFloat(x.parse::<f32>().unwrap()),
         ["pushstring", x] => PushStr(x.parse::<String>().unwrap()),
         ["pop"] => Pop,
-        ["conpop"] => Conpop,
         ["dup"] => Dup,
         ["swap"] => Swap,
         ["clsstk"] => ClsStk, // clear table
