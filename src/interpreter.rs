@@ -54,7 +54,7 @@ fn run(program: Program<'_>) {
                 if a.hashed {
                     stack.push_as_hashed(a.value);
                 } else {
-                    stack.push_as_value(a.value);  
+                    stack.push_as_value(a.value);
                 }
 
                 if b.hashed {

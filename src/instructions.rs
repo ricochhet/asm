@@ -2,11 +2,11 @@ use crate::stack::Pointer;
 
 // TODO: Possibly add some instructions to assist with debugging?
 // These would sort of act like environment variables.
-// 
+//
 // I would probably want to add a distinct marker for these variables,
 // Possibly using the #, @, &, or $ symbol, although I would want to determine
 // use cases for the other symbols first.
-// 
+//
 // Debug variables would not change any instruction, but would print what the instruction is doing
 // I would want to pretty-print the value in some way so it doesn't feel like a gigantic dump of print
 // statements when running your program.
