@@ -76,5 +76,5 @@ Instructions that have two variations follow an `int` `float` pattern. These ins
 - `ret` returns / exits the current context / "closure."
 - `proc x` `end` define a high order label(x), which most be closed via the `end` keyword.
 - `label x` define a label(x), which can be jumped to based on jump instructions.
-    - Truthy instructions will fall through to the label if `ret` is not declared before the labels, whether they evaluated to true or not.
+    - Truthy instructions will fall through to the label if `ret` is not declared before the labels, whether they evaluated to true or not, unless you explicity define a seperate jump-based instruction.
 - `-- x` `; x` defines a code comment(x), multiline is not supported, inline comments are not supported.
