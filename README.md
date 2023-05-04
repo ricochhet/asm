@@ -34,6 +34,7 @@ Instructions that have two variations follow an `int` `float` pattern. These ins
 - `pop` pop the top item from the stack.
 - `conpop` conditionally pop the top item from the stack if the stack is not empty.
 - `dup` duplicate the top item of the stack.
+- `swap` swaps the top two items on the stack.
 - `clsstk` clears the entire stack.
 - `dlcstk` dealloc stack. Performs `shrink_to_fit()`. `clear()` does not deallocate memory.
 - `add` `addf` pops the top two items from the stack, adds them, and pushes the result.

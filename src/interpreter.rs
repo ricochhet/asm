@@ -27,19 +27,6 @@ fn run(program: Program<'_>) {
     while let Some(instruction) = program.get(pointer) {
         pointer += 1;
 
-        // TODO: Currently we sometimes get ourselves into a situation where when executing instructions that pop two values,
-        // we still want to retain one part of the value, we can obviously store the value using `mov` and `ld` when needed,
-        // but this is a "performance heavy" action when we have to do register table look ups constantly. 
-        // 
-        // A possible solution would be to add more instructions that allow us to pop the top-most value, and simply peek the next value.
-        // Whether to add additional instructions to achieve this result is up for consideration. 
-        //
-        // I think there could be times it would be more performant to pop both values, and times where it would be more performant to
-        // only pop one of the values.
-        //
-        // The fizzbuzz program located in /samples/fizzbuzz.asm is a good example, as if we don't load the value every time we want to perform
-        // an operation, we will "fall through" and some values will not jump when appropriate due to popping the wrong two values, we would have
-        // more flexibility with a "pop-and-peek" design.
         match instruction {
             Noop => {}
             PushInt(d) => {
@@ -58,8 +45,28 @@ fn run(program: Program<'_>) {
                 }
             }
             Dup => {
-                let a = stack.peek().value;
-                stack.push_as_value(a);
+                let a = stack.peek();
+
+                if a.hashed {
+                    stack.push_as_hashed(a.value);
+                } else {
+                    stack.push_as_value(a.value);
+                }
+            }
+            Swap => {
+                let (a, b) = (stack.pop(), stack.pop());
+
+                if a.hashed {
+                    stack.push_as_hashed(a.value);
+                } else {
+                    stack.push_as_value(a.value);  
+                }
+
+                if b.hashed {
+                    stack.push_as_hashed(b.value);
+                } else {
+                    stack.push_as_value(b.value);
+                }
             }
             ClsStk => stack.clear_stack(),
             DlcStk => {
@@ -405,6 +412,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["pop"] => Pop,
         ["conpop"] => Conpop,
         ["dup"] => Dup,
+        ["swap"] => Swap,
         ["clsstk"] => ClsStk, // clear table
         ["dlcstk"] => DlcStk, // shrink_to_fit / dealloc table
         ["add"] => Add,       // int

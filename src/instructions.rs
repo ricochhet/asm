@@ -31,6 +31,7 @@ pub enum Instruction {
     Pop,
     Conpop,
     Dup,
+    Swap,
     ClsStk, // clear
     DlcStk, // dealloc
     Add,    // int
