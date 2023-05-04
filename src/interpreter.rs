@@ -163,9 +163,11 @@ fn run(program: Program<'_>) {
             Incr => stack.peek_mut().value += 1,
             Decr => stack.peek_mut().value -= 1,
             Mov(d, p) => {
-                if *p == -1 {
-                    let b = stack.peek();
-                    stack.push_register(*d, b);
+                if p.is_negative() {
+                    let ind = p.abs();
+                    let pos = stack.len() - ind as usize;
+                    let val = stack.get(pos);
+                    stack.push_register(*d, *val);
                 } else {
                     let a = *stack.get(*p as usize + call_stack.last().map_or(0, |s| s.stack_offset));
                     stack.push_register(*d, a);
@@ -181,11 +183,13 @@ fn run(program: Program<'_>) {
                 }
             }
             DmpHash(p) => {
-                if *p == -1 {
-                    let a = stack.peek();
+                if p.is_negative() {
+                    let ind = p.abs();
+                    let pos = stack.len() - ind as usize;
+                    let val = stack.get(pos);
 
-                    if a.hashed {
-                        stack.delete_hash(a.value);
+                    if val.hashed {
+                        stack.delete_hash(val.value);
                     }
                 } else {
                     let a = *stack.get(*p as usize + call_stack.last().map_or(0, |s| s.stack_offset));
@@ -403,7 +407,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
     match s {
         ["pushint", x] => PushInt(x.parse::<isize>().unwrap()),
         ["pushfloat", x] => PushFloat(x.parse::<f32>().unwrap()),
-        ["pushstring", x] => PushStr(x.parse::<String>().unwrap()),
+        ["pushstr", x] => PushStr(x.parse::<String>().unwrap()),
         ["pop"] => Pop,
         ["dup"] => Dup,
         ["swap"] => Swap,
