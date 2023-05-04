@@ -405,9 +405,9 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
     use Instruction::*;
 
     match s {
-        ["pushint", x] => PushInt(x.parse::<isize>().unwrap()),
-        ["pushfloat", x] => PushFloat(x.parse::<f32>().unwrap()),
-        ["pushstr", x] => PushStr(x.parse::<String>().unwrap()),
+        ["pushint" | "pint", x] => PushInt(x.parse::<isize>().unwrap()),
+        ["pushfloat" | "pflt", x] => PushFloat(x.parse::<f32>().unwrap()),
+        ["pushstr" | "pstr", x] => PushStr(x.parse::<String>().unwrap()),
         ["pop"] => Pop,
         ["dup"] => Dup,
         ["swap"] => Swap,
