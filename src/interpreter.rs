@@ -63,7 +63,7 @@ fn run(program: Program<'_>) {
                     stack.push_as_value(b.value);
                 }
             }
-            ClsStk => stack.clear_stack(),
+            ClrStk => stack.clear_stack(),
             DlcStk => {
                 stack.shrink_stack();
             }
@@ -199,14 +199,14 @@ fn run(program: Program<'_>) {
                     }
                 }
             }
-            ClsHash => {
+            ClrHash => {
                 stack.clear_hashmap();
             }
             DlcHash => stack.shrink_hashmap(),
             DmpReg(p) => {
                 stack.delete_register(*p);
             }
-            ClsReg => stack.clear_registers(),
+            ClrReg => stack.clear_registers(),
             DlcReg => stack.shrink_registers(),
             Jmp(p) => pointer = *p,
             IntHas(p) => {
@@ -411,7 +411,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["pop"] => Pop,
         ["dup"] => Dup,
         ["swap"] => Swap,
-        ["clsstk"] => ClsStk, // clear table
+        ["clrstk"] => ClrStk, // clear table
         ["dlcstk"] => DlcStk, // shrink_to_fit / dealloc table
         ["add"] => Add,       // int
         ["addf"] => AddF,     // float
@@ -428,10 +428,10 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["mov", d, p] => Mov(d.parse::<isize>().unwrap(), p.parse::<isize>().unwrap()),
         ["ld", d] => Ld(d.parse::<isize>().unwrap()),
         ["dmphash", p] => DmpHash(p.parse::<isize>().unwrap()), // remove key
-        ["clshash"] => ClsHash,                                 // clear table
+        ["clrhash"] => ClrHash,                                 // clear table
         ["dlchash"] => DlcHash,                                 // shrink_to_fit / dealloc table
         ["dmpreg", p] => DmpReg(p.parse::<isize>().unwrap()),   // remove key
-        ["clsreg"] => ClsReg,                                   // clear table
+        ["clrreg"] => ClrReg,                                   // clear table
         ["dlcreg"] => DlcReg,                                   // shrink_to_fit / dealloc table
         ["jmp", l] => Jmp(*labels.get(l).unwrap()),
         ["cmp", l] => Cmp(*labels.get(l).unwrap()),

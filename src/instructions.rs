@@ -31,7 +31,7 @@ pub enum Instruction {
     Pop,
     Dup,
     Swap,
-    ClsStk, // clear
+    ClrStk, // clear
     DlcStk, // dealloc
     Add,    // int
     AddF,   // float
@@ -48,10 +48,10 @@ pub enum Instruction {
     Mov(isize, isize),
     Ld(isize),
     DmpHash(isize),
-    ClsHash, // clear
+    ClrHash, // clear
     DlcHash, // dealloc
     DmpReg(isize),
-    ClsReg, // clear
+    ClrReg, // clear
     DlcReg, // dealloc
     Cmp(Pointer),
     IntHas(Pointer),

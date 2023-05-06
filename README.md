@@ -34,7 +34,7 @@ Instructions that have two variations follow an `int` `float` pattern. These ins
 - `pop` pop the top item from the stack.
 - `dup` duplicate the top item of the stack.
 - `swap` swaps the top two items on the stack.
-- `clsstk` clears the entire stack.
+- `clrstk` clears the entire stack.
 - `dlcstk` dealloc stack. Performs `shrink_to_fit()`. `clear()` does not deallocate memory.
 - `add` `addf` pops the top two items from the stack, adds them, and pushes the result.
 - `sub` `subf` pops the top two items from the stack, subtracts them, and pushes the result.
@@ -47,10 +47,10 @@ Instructions that have two variations follow an `int` `float` pattern. These ins
     - maximum registers(x) is currently the isize max `9223372036854775807`, although you will likely run out memory before hitting this point. 
 - `ld x` pushes register x to the top of the stack.
 - `dmphash x` deletes x from the hash table. x is an index in the stack (-1 is the top of the stack).
-- `clshash` clears the entire hash table.
+- `clrhash` clears the entire hash table.
 - `dlchash` dealloc hash table. Performs `shrink_to_fit()`. `clear()` does not deallocate memory.
 - `dmpreg x` deletes x from the register table. x is an index in the stack (-1 is the top of the stack).
-- `clsreg` clears the entire register table.
+- `clrreg` clears the entire register table.
 - `dlcreg` dealloc register table. Performs `shrink_to_fit()`. `clear()` does not deallocate memory.
 - `jump x` jump to a defined label(x).
 - `cmp x` compares the top two items items, and jumps to label(x) if truthy.
