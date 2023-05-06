@@ -1,5 +1,14 @@
 use crate::stack::Pointer;
 
+#[non_exhaustive]
+pub struct Type;
+
+impl Type {
+    pub const INT: &str = "int";
+    pub const STRING: &str = "str";
+    pub const FLOAT: &str = "flt";
+}
+
 // TODO: Possibly add some instructions to assist with debugging?
 // These would sort of act like environment variables.
 //
@@ -25,6 +34,7 @@ use crate::stack::Pointer;
 // of an assembly like language abbreviating everything, just because I think it looks cool and overly technical.
 #[derive(Debug)]
 pub enum Instruction {
+    Push(String, String),
     PushInt(isize),
     PushFloat(f32),
     PushStr(String),

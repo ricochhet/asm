@@ -35,7 +35,6 @@ pub struct StackValue {
     pub value: isize,
     pub hashed: bool,
 }
-
 #[derive(Debug)]
 pub enum ValueType {
     String(String),
