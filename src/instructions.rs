@@ -36,7 +36,7 @@ impl Type {
 pub enum Instruction {
     Push(String, String),
     PushInt(isize),
-    PushFloat(f32),
+    PushFlt(f32),
     PushStr(String),
     Pop,
     Dup,

@@ -43,7 +43,7 @@ fn run(program: Program<'_>) {
             PushInt(d) => {
                 stack.push_as_value(*d);
             }
-            PushFloat(d) => {
+            PushFlt(d) => {
                 stack.push_hashed_float(*d);
             }
             PushStr(d) => stack.push_hashed_string(d),
@@ -418,7 +418,7 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
     match s {
         ["push", x, y] => Push(x.parse::<String>().unwrap(), y.parse::<String>().unwrap()),
         ["pushint" | "pint", x] => PushInt(x.parse::<isize>().unwrap()),
-        ["pushfloat" | "pflt", x] => PushFloat(x.parse::<f32>().unwrap()),
+        ["pushfloat" | "pflt", x] => PushFlt(x.parse::<f32>().unwrap()),
         ["pushstr" | "pstr", x] => PushStr(x.parse::<String>().unwrap()),
         ["pop"] => Pop,
         ["dup"] => Dup,

@@ -29,7 +29,7 @@ All instructions are currently case-sensitive (subject to change).
 Instructions that have two variations follow an `int` `float` pattern. These instructions are separated because float operations require a hash table lookup for the value.
 
 - `pushint x` or `pint x` push an integer(x) to the top of the stack.
-- `pushfloat x` or `pflt x` push a float(x) to the top of the stack.
+- `pushflt x` or `pflt x` push a float(x) to the top of the stack.
 - `pushstr x` or `pstr x` push a string(x) to the top of the stack.
 - `pop` pop the top item from the stack.
 - `dup` duplicate the top item of the stack.
