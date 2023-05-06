@@ -54,9 +54,9 @@ pub enum Instruction {
     ClsReg, // clear
     DlcReg, // dealloc
     Cmp(Pointer),
-    InclI(Pointer),
-    InclS(Pointer),
-    InclF(Pointer),
+    IntHas(Pointer),
+    StrHas(Pointer),
+    FltHas(Pointer),
     Jmp(Pointer),
     JE(Pointer),   // int
     JFE(Pointer),  // float

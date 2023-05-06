@@ -209,7 +209,7 @@ fn run(program: Program<'_>) {
             ClsReg => stack.clear_registers(),
             DlcReg => stack.shrink_registers(),
             Jmp(p) => pointer = *p,
-            InclI(p) => {
+            IntHas(p) => {
                 let (a, b) = (stack.pop(), stack.pop());
 
                 if !a.hashed && !b.hashed {
@@ -221,7 +221,7 @@ fn run(program: Program<'_>) {
                     }
                 }
             }
-            InclS(p) => {
+            StrHas(p) => {
                 let (a, b) = (stack.pop(), stack.pop());
 
                 if a.hashed && b.hashed {
@@ -233,7 +233,7 @@ fn run(program: Program<'_>) {
                     }
                 }
             }
-            InclF(p) => {
+            FltHas(p) => {
                 let (a, b) = (stack.pop(), stack.pop());
 
                 if a.hashed && b.hashed {
@@ -435,7 +435,9 @@ fn parse_instruction(s: &[&str], labels: &Labels, procedures: &Procedures) -> In
         ["dlcreg"] => DlcReg,                                   // shrink_to_fit / dealloc table
         ["jmp", l] => Jmp(*labels.get(l).unwrap()),
         ["cmp", l] => Cmp(*labels.get(l).unwrap()),
-        ["incl", l] => InclI(*labels.get(l).unwrap()),
+        ["inthas", l] => IntHas(*labels.get(l).unwrap()),
+        ["strhas", l] => StrHas(*labels.get(l).unwrap()),
+        ["flthas", l] => FltHas(*labels.get(l).unwrap()),
         ["je", l] => JE(*labels.get(l).unwrap()),     // int
         ["jfe", l] => JFE(*labels.get(l).unwrap()),   // float
         ["jne", l] => JNE(*labels.get(l).unwrap()),   // int

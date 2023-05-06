@@ -54,7 +54,7 @@ Instructions that have two variations follow an `int` `float` pattern. These ins
 - `dlcreg` dealloc register table. Performs `shrink_to_fit()`. `clear()` does not deallocate memory.
 - `jump x` jump to a defined label(x).
 - `cmp x` compares the top two items items, and jumps to label(x) if truthy.
-- `incl x` pops the top two items from the stack. checks if the second to last item in the stack contains the top-most item, jumps to label(x) if truthy.
+- `inthas x` `strhas x` `flthas x` pops the top two items from the stack. checks if the second to last item in the stack contains the top-most item, jumps to label(x) if truthy.
 - `je x` `jfe` peeks the top-most value, and jumps to label(x) if it is equal to `0`
 - `jne x` `jfne` peeks the top-most value, and jumps to label(x) if it is not equal to `0`
 - `jgt x` `jfgt` peeks the top-most value, and jumps to label(x) if it is greater than`0`
