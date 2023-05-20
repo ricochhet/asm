@@ -34,7 +34,6 @@ impl Type {
 // of an assembly like language abbreviating everything, just because I think it looks cool and overly technical.
 #[derive(Debug)]
 pub enum Instruction {
-    Push(String, String),
     PushInt(isize),
     PushFlt(f32),
     PushStr(String),
