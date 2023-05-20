@@ -1,4 +1,4 @@
-use crate::instructions::{Instruction, Type};
+use crate::instructions::Instruction;
 use crate::stack::*;
 use std::collections::HashMap;
 
